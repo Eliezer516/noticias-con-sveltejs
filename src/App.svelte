@@ -102,6 +102,7 @@
 		padding: 10px;
 		margin: 5px 0;
 	}
+	/*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*/
 
 	.card .card_content {
 		padding: 5px;
