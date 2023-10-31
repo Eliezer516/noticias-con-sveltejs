@@ -1,4 +1,5 @@
 <script>
+	import './App.css'
 
 	let respuesta = []
 
@@ -77,7 +78,7 @@
 	section	{
 		display: grid;
 		grid-gap: 1rem;
-		grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
 		padding: 1rem;
 	}
 
