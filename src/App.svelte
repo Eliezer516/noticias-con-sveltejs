@@ -1,18 +1,31 @@
 <script>
+	import { onMount } from 'svelte'
 	import './App.css'
+	import Loader from './components/Loader.svelte'
 
 	let respuesta = []
-
 	let paisDeOrigen = 've'
 	let categoria = 'general'
+	let loader = false
 
 	const obtenerNoticias = async (paisDeOrigen, categoria) => {
-		const fetchData = await fetch(`https://newsapi.org/v2/top-headlines?country=${paisDeOrigen}&category=${categoria}&apiKey=1380d78ddac345b481518f6cffb95140`)
-		const json = await fetchData.json()
-		const response = await json.articles
-		console.table(response);
-		respuesta = response
+		try {
+			loader = true
+			const fetchData = await fetch(`https://newsapi.org/v2/top-headlines?country=${paisDeOrigen}&category=${categoria}&apiKey=1380d78ddac345b481518f6cffb95140`)
+			const json = await fetchData.json()
+			const response = await json.articles
+			console.log(response);
+			respuesta = response
+			loader = false
+		} catch(err) {
+			console.log(err)
+			loader = false
+		}
 	}
+
+	onMount(() => {
+    obtenerNoticias(paisDeOrigen,categoria)
+  })
 
 	$: obtenerNoticias(paisDeOrigen, categoria)
 
@@ -20,7 +33,6 @@
 </script>
 
 <main>
-
 	<nav>
 		<div class="title">
 			<h2>App de noticias con Sveltejs</h2>
@@ -28,16 +40,14 @@
 		<div class="form">
 			<div class="pais">
 				<select class="select_box" bind:value={paisDeOrigen}>
-				  <option value="ve" selected disabled>Pais</option>
-				  <option value="ve">Venezuela</option>
+				  <option selec value="ve">Venezuela</option>
 				  <option value="co">Colombia</option>
 				  <option value="ar">Argentina</option>
 				</select>
 			</div>
 			<div class="categoria">
 				<select class="select_box" bind:value={categoria}>
-				  <option value="general" selected disabled>Categoria</option>
-				  <option value="general">General</option>
+				  <option selected value="general">General</option>
 				  <option value="business">Negocios</option>
 				  <option value="entertainment">Entretenimiento</option>
 				  <option value="health">Salud</option>
@@ -50,48 +60,54 @@
 	</nav>
 
 	<section>
-		{#each respuesta as {title, url, urlToImage}}
-		<div class="card">
-			<div class="card-img">
-				<img src={urlToImage ? urlToImage : 'https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg'} alt="">
+		{#if respuesta.length > 0}
+			{#each respuesta as {title, url}}
+			<div class="card">
+				<div class="card_content">
+					<div class="card-title">{title}</div>
+					<div class="card-link"><a href={url ? url : 'https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg'} target="_blank">Seguir leyendo</a></div>
+				</div>
 			</div>
-			<div class="card_content">
-				<div class="card-title">{title}</div>
-				<div class="card-link"><a href={url ? url : 'https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg'} target="_blank">Seguir leyendo</a></div>
-			</div>
-		</div>
-		{/each}
+			{/each}
+		{/if}
 	</section>
+
+	{#if loader}
+		<Loader/>
+	{/if}
 	
 </main>
 
 <style>
 	nav {
 		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 		padding: 15px;
 		background: #e6e6e6;
 	}
 
+	nav .title {
+		margin-bottom: 20px;
+	}
+
 	section	{
-		display: grid;
-		grid-gap: 1rem;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-		padding: 1rem;
+		width: 60%;
+		margin:0 auto;
 	}
 
 	.card {
 		width: 100%;
-	}
-
-	.card .card-img img {
-		width: 100%;
+		border: 1px solid black;
+		border-radius: 10px;
+		margin: 20px 0;
+		padding: 20px;
 	}
 
 	.card .card-title {
 		font-weight: bold;
+		font-size: 1.5rem;
 	}
 
 	.card .card-link a {
@@ -101,7 +117,7 @@
 		background: blue;
 		border-radius: 5px;
 		padding: 10px;
-		margin: 5px 0;
+		margin-top: 20px;
 	}
 	/*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*/
 
@@ -129,10 +145,13 @@
 	.select_box option {
 		background: white;
 	}
-	@media (min-width: 570px) {
-		nav {
-			flex-direction: row;
-			justify-content: space-around;
+	@media screen and (max-width: 570px) {
+		.card .card-title {
+			font-size: 1rem;
+		}
+
+		section {
+			width: 95%;
 		}
 	}
 </style>
